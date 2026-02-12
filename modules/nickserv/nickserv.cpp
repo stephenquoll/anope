@@ -320,7 +320,7 @@ public:
 		u->Kill(*NickServ, "Enforcement of services protected nickname");
 	}
 
-        int GenerateNickname(char* name) anope_override
+        int GenerateNickname(char* name)
         {
             int i;
 
