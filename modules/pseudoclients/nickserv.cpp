@@ -238,26 +238,151 @@ class NickServCore : public Module, public NickServService
 
 			Anope::string guestnick;
 
-			int i = 0;
-			do
-			{
-				guestnick = guestprefix + stringify(static_cast<uint16_t>(rand()));
-				if (guestnick.length() > nicklen)
-					guestnick = guestnick.substr(0, nicklen);
-			}
-			while (User::Find(guestnick) && i++ < 10);
+                        u->SendMessage(*NickServ, _("About to do the thing"));
 
-			if (i == 11)
-				u->Kill(*NickServ, "Services nickname-enforcer kill");
-			else
-			{
-				u->SendMessage(*NickServ, _("Your nickname is now being changed to \002%s\002"), guestnick.c_str());
-				IRCD->SendForceNickChange(u, guestnick, Anope::CurTime);
-			}
+                        char *c_guestnick = (char*)malloc(nicklen);
+
+                        int i = 0;
+                        do
+                        {
+                                this->GenerateNickname(c_guestnick);
+                                guestnick = c_guestnick;
+                                if (guestnick.length() > nicklen)    // This shouldn't happen, but it's not hurting anyone
+                                        guestnick = guestnick.substr(0, nicklen);
+                        }
+                        while (User::Find(guestnick) && i++ < 10);
+
+                        if (i == 11)
+                                u->Kill(*NickServ, "Services nickname-enforcer kill");
+                        else
+                        {
+                                u->SendMessage(*NickServ, _("Your nickname is now being changed to \002%s\002"), guestnick.c_str());
+                                IRCD->SendForceNickChange(u, guestnick, Anope::CurTime);
+                        }
+
 		}
 		else
 			u->Kill(*NickServ, "Services nickname-enforcer kill");
 	}
+
+        int GenerateNickname(char* name) anope_override
+        {
+            int i;
+
+            char *species[] = { "Wolf",
+                                "Cat",
+                                "Bunny",
+                                "Rabbit",
+                                "Fox",
+                                "Vixen",
+                                "Tiger",
+                                "Bird",
+                                "Dog",
+                                "Deer",
+                              "Dragon",
+                              "Buck",
+                              "Skunk",
+                              "Rat",
+                              "Puppy",
+                              "Otter",
+                              "Mouse",
+                              "Gator",
+                              "Kovu",
+                              "Fungi",
+                              "Paws",
+                              "Claw",
+                              "Coon",
+                              "Badger",
+                              "Beaver",
+                              "Fennec",
+                              "Furry",
+                              "Roo",
+                              "Fur",
+                              "Cub",
+                              "Goyle",
+                              "Horse",
+                              "Phin",
+                              "Kitsune",
+                              "Bear",
+                              "Dasyurid",
+                              "Unicorn",
+                              "AFK",
+                              "Lion",
+                              "Husky",
+                              "Kit",
+                              "Snep",
+                              "Pegasus",
+                              "Kobold",
+                              "Griffin",
+                              "Duck",
+                              "Loon",
+                              NULL };
+
+          char *words[] = { "Winged",
+                            "Soul",
+                            "Dark",
+                            "Silly",
+                            "Wild",
+                            "Cuddle",
+                            "Yiffy",
+                            "Blood",
+                            "Shadow",
+                            "Cyber",
+                            "Bright",
+                            "Silver",
+                            "Were",
+                            "Sewer",
+                            "Demon",
+                            "Sleepy",
+                            "Golden",
+                            "Fuzzy",
+                            "Angel",
+                            "Cute",
+                            "Goth",
+                            "Light",
+                            "Black",
+                            "White",
+                            "Red",
+                            "Blue",
+                            "Grey",
+                            "Furry",
+                            "Polar",
+                            "Night",
+                            "Star",
+                            "Lazy",
+                            "Fire",
+                            "Ice",
+                            "Snow",
+                            "Moon",
+                            "Teen",
+                            "Party",
+                            "Skeptic",
+                            "Optimist",
+                            "Precise",
+                            "Loquacious",
+                            NULL };
+
+          char *modifiers[] = { "Taur",
+                                "Morph",
+                                NULL };
+
+          strcpy(name, "Guest");
+
+          i = (int) (42.0 * rand() / (RAND_MAX+1.0));
+          strncat(name, words[i], 8);
+
+          i = (int) (47.0 * rand() / (RAND_MAX+1.0));
+          strncat(name, species[i], 8);
+
+          i = (int) (10.0 * rand() / (RAND_MAX+1.0));
+          if( i == 1 )
+            {
+              i = (int) (2 * rand() / (RAND_MAX+1.0));
+              strncat(name, modifiers[i], 8);
+            }
+
+         return(0);
+        }
 
 	void Release(NickAlias *na) anope_override
 	{
